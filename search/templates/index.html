@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load staticfiles %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/css/styles.css' %}" type = "text/css"/>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js'></script>
+
+    <title>News Bias Analyzer</title>
+
+  </head>
+  <body>
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">News Bias Analyzer</a>
+            </div>
+          </div>
+      </nav>
+    
+     <div class="container-fluid">
+         <div class="row">
+            <div class="col-lg-3 col-sm-5 sidebar-offcanvas" id="sidebar" role="navigation" style="float:left">
+              <div class="well sidebar-nav">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <ul id="news_filter_list" class="nav">
+                      <li><strong>Filter News Sources</strong></li>
+                    </ul>
+                    
+                  </div>
+                  <div class="col-sm-6">
+                    <ul id="keyword_filter_list" class="nav">
+                      <li><strong>Filter Keywords</strong></li>
+                    </ul>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3">
+              <div class='container'>
+                  {% block content %}
+                  {% endblock content %}
+              </div>
+             
+              <script>
+                $(document).ready(function(){
+                  console.log('TESTING');
+                  {% block jquery %}{% endblock %}
+                });
+                </script>
+             </div>
+         </div> 
+      </div>
+      
+      <footer class="footer navbar-fixed-bottom">
+          <div class="container">
+            <p id = "footer_text">Copyright © 2017  News Bias Analyzer Inc. All rights reserved.</p> 
+          </div>
+      </footer>
+
+      <style>
+                
+          footer{
+              width:100%;
+              min-height:50px;    
+              background-color: #f2f2f2; 
+          }
+                
+          #footer_text{
+              color:#a6a6a6;
+              text-align: center;
+              padding-top: 15px;
+          }
+                
+          .nav {
+              max-height:300px;
+              overflow-y:auto;  
+          }
+      </style>    
+  </body>
+</html>

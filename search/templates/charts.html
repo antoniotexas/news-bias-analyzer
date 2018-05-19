@@ -1,0 +1,179 @@
+{% extends 'index.html' %}
+
+<script>
+{% block jquery %}
+
+
+const max = 1
+const min = -1
+    
+const bg_colors = ['rgba(255, 99, 132, 0.2)',  'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)', 'rgba(147, 18, 4, .2)', 'rgba(26, 165, 52, .2)', 'rgba(160, 160, 160, .2)'];
+const border_colors = ['rgba(255, 99, 132, 1.0)',  'rgba(54, 162, 235, 1.0)', 'rgba(255, 206, 86, 1.0)', 'rgba(75, 192, 192, 1.0)', 'rgba(153, 102, 255, 1.0)', 'rgba(255, 159, 64, 1.0)', 'rgba(147, 18, 4, 1.0)', 'rgba(26, 165, 52, 1.0)', 'rgba(160, 160, 160, 1.0)'];
+
+let keywords = [];
+let active_keywords = [];
+let news_sources = [];
+let active_sources = [];
+
+
+let dataset = [];
+let chart;
+
+$.ajax({
+    method: "GET",
+    url: '/api/chart/data/',
+    success: function(data){
+        news_sources = data.labels
+        keywords = data.keywords
+        original_dataset = data.data
+        setChart()
+    },
+    error: function(error_data){
+        console.log("error")
+        console.log(error_data)
+    }
+})
+
+
+
+function changeKeywordVisibility(index) {
+    active_keywords[index] = ! active_keywords[index];
+    
+    updateChart(chart)
+}
+ 
+
+function changeSourceVisibility(index) {
+    active_sources[index] = ! active_sources[index];
+    
+    updateChart(chart)
+}
+ 
+
+function updateChart(chart) {
+    let source_labels = [];
+    active_sources.forEach(function(active, index) {
+        if(active) {
+            source_labels.push(news_sources[index]);
+        }
+    })
+    
+    chart.data.labels = source_labels;
+    
+    temp_dataset = []
+    active_keywords.forEach(function(active_keyword, index) {
+        if(active_keyword) {
+            let mock_data = dataset[index].data;
+            let filtered_mock_data = []
+            
+            mock_data.forEach(function(value, index) {
+               if(active_sources[index]) {
+                   filtered_mock_data.push(value);
+               } 
+            });
+            
+            temp_dataset.push({
+                label: keywords[index],
+                data: filtered_mock_data,
+                backgroundColor: bg_colors[index],
+                borderColor: border_colors[index],
+                borderWidth: 1
+            });
+            
+        }
+    });
+    
+    chart.data.datasets = temp_dataset;
+    
+    
+    chart.update();
+}
+
+function setChart(){
+    keywords.forEach(function(keyword, index) {
+        let mock_data = [];
+        news_sources.forEach(function(source, index) {
+            mock_data.push(original_dataset[keyword][source]); 
+        });
+        
+        $("#keyword_filter_list").append(`
+            <li>
+              <div class="md-checkbox">
+                <input id="k${index}" type="checkbox" checked>
+                <label for="k${index}">${keyword}</label>
+              </div>
+            </li>`);
+        $(`#k${index}`).on("click", function() {
+            changeKeywordVisibility(index);
+            
+        });
+        dataset.push({
+            label: keywords[index],
+            data: mock_data,
+            backgroundColor: bg_colors[index],
+            borderColor: border_colors[index],
+            borderWidth: 1
+        });
+        
+        active_keywords.push(true);
+    });
+    
+    news_sources.forEach(function(source, index) {
+        $("#news_filter_list").append(`
+            <li>
+              <div class="md-checkbox">
+                <input id="i${index}" type="checkbox" checked>
+                <label for="i${index}">${source}</label>
+              </div>
+            </li>`);
+        $(`#i${index}`).on("click", function() {
+            changeSourceVisibility(index);
+        });
+        active_sources.push(true);
+    });
+
+    var ctx = document.getElementById("myChart");
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: news_sources,
+            datasets: dataset
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true,
+                        min:-1,
+                        max:1
+                    }, 
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Sentiment Analysis Score'
+                    }
+                }]
+            },
+            legend: {
+                position: 'right',
+                    onClick: function(e) {
+                        e.stopPropagation();
+                    }
+            }
+        }
+    });
+}
+ 
+
+{% endblock %}
+</script>
+
+{% block content %}
+
+<div class='row'>
+    <div class='col-lg-6 col-sm-7 col-xs-8 text-center'>
+        <h5>News Bias Analyzer Graph</h5>
+        <canvas id="myChart" width="200" height="200"></canvas>
+    </div>
+</div>
+
+{% endblock content %}
